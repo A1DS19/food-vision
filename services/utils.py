@@ -40,7 +40,15 @@ def save_model(model: torch.nn.Module,
 def download_data(
         data_url: str = 'https://github.com/mrdbourke/pytorch-deep-learning/raw/main/data/pizza_steak_sushi.zip',
         data_folder: str = 'data',
-        image_folder: str = 'pizza_steak_sushi'):
+        image_folder: str = 'pizza_steak_sushi') -> None:
+    """Download dataset in zip format and unzip it.
+
+    Keyword arguments:
+    data_url -- url of zipped dataset
+    data_folder -- name of folder where to store the data
+    image_folder -- name of folder where to store the images
+    Return: None
+    """
 
     data_path = Path(f'{data_folder}/')
     image_path = data_path / image_folder
