@@ -10,21 +10,28 @@ class SetupData():
     Keyword arguments:
     train_dir -- Path to train directory.
     test_dir -- Path to test directory
-    data_transform -- torchvision transforms to perform on training and testing data.
+    train_transform -- list of transform to apply to training dataset. defaults to transforms.Resize(size=self.resize_imgs),
+                      transforms.ToTensor()
+    test_transform -- list of transform to apply to testing dataset. defaults to transforms.Resize(size=self.resize_imgs),
+                      transforms.ToTensor()                      
+    resize_imgs -- size of the imgs to apply to testing a train dataset. defaults to (64, 64)
     batch_size -- number of samples per batch in each dataloader.
     num_workers  -- an integer for number of worker per dataloader.
-
-    Return:
-    A tuple of train_dataloder, test_dataloader, class_names.
     """
 
     def __init__(self,
                  train_dir: str,
                  test_dir: str,
+                 train_transforms: list = None,
+                 test_transforms: list = None,
+                 resize_imgs: tuple = (64, 64),
                  batch_size: int = 32,
                  num_workers: int = os.cpu_count()) -> None:
         self.train_dir = str(train_dir)
         self.test_dir = str(test_dir)
+        self.train_transforms = train_transforms
+        self.test_transforms = test_transforms
+        self.resize_imgs = resize_imgs
         self.batch_size = batch_size
         self.num_workers = num_workers
 
@@ -38,14 +45,20 @@ class SetupData():
         Returns:
             data_transform: transform for given split
         """
+
         if train:
-            data_transform = transforms.Compose([
-                transforms.Resize((64, 64)),
-                transforms.ToTensor()])
+            if not self.train_transforms:
+                self.train_transforms = [transforms.Resize(size=self.resize_imgs),
+                                         transforms.ToTensor()]
+
+            data_transform = transforms.Compose(self.train_transforms)
         elif test:
-            data_transform = transforms.Compose([
-                transforms.Resize((64, 64)),
-                transforms.ToTensor()])
+
+            if not self.test_transforms:
+                self.test_transforms = [transforms.Resize(size=self.resize_imgs),
+                                        transforms.ToTensor()]
+
+            data_transform = transforms.Compose(self.test_transforms)
 
         return data_transform
 
