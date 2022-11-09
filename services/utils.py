@@ -112,3 +112,57 @@ def plot_loss_curves(results):
     plt.title("Accuracy")
     plt.xlabel("Epochs")
     plt.legend()
+
+
+def pred_and_plot_images(transform: nn.Module,
+                         model: nn.Module,
+                         class_names: list,
+                         test_dir: str,
+                         device: str) -> None:
+    """Predict and plot 10 random images on test dataset
+
+    Keyword arguments:
+    transform -- image transform
+    model -- trained model
+    class_names -- classes of data
+    test_dir -- test directory containning images
+    device -- device (cpu, cuda)
+    Return: None
+    """
+
+    model.to(device)
+    model.eval()
+
+    img_files = glob.glob(f'{str(test_dir)}/*/*.jpg')
+    random_idxs = random.sample(range(len(img_files)), k=10)
+
+    plt.figure(figsize=(30, 20))
+    for idx, img_idx in enumerate(random_idxs):
+        img_file = img_files[img_idx]
+        img_file_short = img_file[22:]
+        true_class = [re.search(class_name, img_file_short)
+                      for class_name in class_names]
+        true_class = [
+            class_name for class_name in true_class if class_name is not None][0].group(0)
+        raw_img = read_image(img_file).type(torch.float32)
+        normalized_img = raw_img / 255.
+        img = transform(normalized_img)
+
+        with torch.inference_mode():
+            img = img.unsqueeze(0).to(device)
+            pred_logits = model(img)
+            pred_probs = torch.softmax(pred_logits, dim=1)
+            pred_label = torch.argmax(pred_probs)
+
+        pred_class = class_names[pred_label]
+
+        plt.subplot(5, 5, idx + 1)
+        plt.imshow(normalized_img.squeeze(0).permute(1, 2, 0))
+        title_msg = f'true class: {true_class} | predicted class {pred_class} {pred_probs.max():.3f}%'
+
+        if true_class == pred_class:
+            plt.title(title_msg, color='green')
+        else:
+            plt.title(title_msg, color='red')
+
+        plt.axis(False)
