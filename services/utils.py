@@ -117,7 +117,7 @@ def plot_loss_curves(results):
 def pred_and_plot_images(transform: nn.Module,
                          model: nn.Module,
                          class_names: list,
-                         test_dir: str,
+                         val_dir: str,
                          device: str) -> None:
     """Predict and plot 10 random images on test dataset
 
@@ -125,7 +125,7 @@ def pred_and_plot_images(transform: nn.Module,
     transform -- image transform
     model -- trained model
     class_names -- classes of data
-    test_dir -- test directory containning images
+    val_dir -- validation directory containing images
     device -- device (cpu, cuda)
     Return: None
     """
@@ -133,7 +133,7 @@ def pred_and_plot_images(transform: nn.Module,
     model.to(device)
     model.eval()
 
-    img_files = glob.glob(f'{str(test_dir)}/*/*.jpg')
+    img_files = glob.glob(f'{str(val_dir)}/*/*.jpg')
     random_idxs = random.sample(range(len(img_files)), k=10)
 
     plt.figure(figsize=(30, 20))
