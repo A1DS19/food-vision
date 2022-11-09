@@ -166,3 +166,46 @@ def pred_and_plot_images(transform: nn.Module,
             plt.title(title_msg, color='red')
 
         plt.axis(False)
+
+
+def pred_and_plot_image(
+    model: torch.nn.Module,
+    image_path: str,
+    class_names: list = None,
+    transform=None,
+    device: torch.device = "cuda" if torch.cuda.is_available() else "cpu",
+):
+    """Makes a prediction on a target image with a trained model and plots the image.
+    Args:
+        model (torch.nn.Module): trained PyTorch image classification model.
+        image_path (str): filepath to target image.
+        class_names (List[str], optional): different class names for target image. Defaults to None.
+        transform (_type_, optional): transform of target image. Defaults to None.
+        device (torch.device, optional): target device to compute on. Defaults to "cuda" if torch.cuda.is_available() else "cpu".
+
+    Returns:
+        Matplotlib plot of target image and model prediction as title.
+    """
+
+    raw_image = torchvision.io.read_image(
+        str(image_path)).type(torch.float32)
+    target_image = raw_image / 255.0
+    target_image = transform(target_image)
+
+    model.to(device)
+    model.eval()
+
+    with torch.inference_mode():
+        target_image = target_image.unsqueeze(dim=0)
+        target_image_pred = model(target_image.to(device))
+
+    target_image_pred_probs = torch.softmax(target_image_pred, dim=1)
+    target_image_pred_label = torch.argmax(target_image_pred_probs)
+
+    plt.imshow(raw_image.squeeze().permute(1, 2, 0))
+    if class_names:
+        title = f"Pred: {class_names[target_image_pred_label.cpu()]} | Prob: {target_image_pred_probs.max().cpu():.3f}"
+    else:
+        title = f"Pred: {target_image_pred_label} | Prob: {target_image_pred_probs.max().cpu():.3f}"
+    plt.title(title)
+    plt.axis(False)
