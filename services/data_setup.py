@@ -48,17 +48,17 @@ class SetupData():
 
         if train:
             if not self.train_transforms:
-                self.train_transforms = [transforms.Resize(size=self.resize_imgs),
-                                         transforms.ToTensor()]
+                self.train_transforms = transforms.Compose([transforms.Resize(
+                    size=self.resize_imgs), transforms.ToTensor()])
 
-            data_transform = transforms.Compose(self.train_transforms)
+            data_transform = self.train_transforms
         elif test:
 
             if not self.test_transforms:
-                self.test_transforms = [transforms.Resize(size=self.resize_imgs),
-                                        transforms.ToTensor()]
+                self.test_transforms = transforms.Compose([transforms.Resize(size=self.resize_imgs),
+                                                           transforms.ToTensor()])
 
-            data_transform = transforms.Compose(self.test_transforms)
+            data_transform = self.test_transforms
 
         return data_transform
 
