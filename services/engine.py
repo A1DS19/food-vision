@@ -2,6 +2,7 @@
 from typing import Tuple, Dict, List
 from tqdm.auto import tqdm
 import torch
+from torch.utils.tensorboard import SummaryWriter
 
 
 class TrainTestStep():
@@ -24,7 +25,7 @@ class TrainTestStep():
                  loss_fn: torch.nn.Module,
                  epochs: int,
                  device: torch.device,
-                 summary_writer: torch.utils.tensorboard.writer.SummaryWriter = None):
+                 summary_writer: SummaryWriter = None):
         self.model = model
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader

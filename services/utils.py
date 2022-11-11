@@ -55,8 +55,9 @@ def download_data(
     Return: None
     """
 
-    data_path = Path(f'{data_folder}/')
+    data_path = Path(f'{data_folder}')
     image_path = data_path / image_folder
+    file_path = data_path / f'{image_folder}.zip'
 
     if data_path.is_dir():
         print(f'{data_path} directory already exists')
@@ -66,20 +67,22 @@ def download_data(
 
     if image_path.is_dir():
         print(f'{image_path} directory already exists')
+        print(f'dataset will not be downloaded')
     else:
         print(f'{image_path} directory does not exists, creating one...')
         image_path.mkdir(parents=True, exist_ok=True)
 
-        with open(data_path / f'{image_folder}.zip', 'wb') as f:
-            print('Downloading, dataset...')
-            req = requests.get(data_url)
-            f.write(req.content)
-        print('Dataset downloaded')
+        print('Downloading, dataset...')
+        req = requests.get(data_url)
 
-        with zipfile.ZipFile(data_path / f'{image_folder}.zip', 'r') as zip_ref:
+        with open(file_path, 'wb') as f:
+            f.write(req.content)
+            print(f'Dataset downloaded in {file_path}')
+
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
             print('Unzipping dataset...')
             zip_ref.extractall(image_path)
-        print(f'Dataset unzipped in {image_path}')
+            print(f'Dataset unzipped in {file_path}')
 
 
 def plot_loss_curves(results):
