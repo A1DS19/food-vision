@@ -1,6 +1,7 @@
 
 from typing import Tuple, Dict, List
 from tqdm.auto import tqdm
+from torch.utils.tensorboard import SummaryWriter
 import torch
 
 
@@ -23,7 +24,8 @@ class TrainTestStep():
                  optimizer: torch.optim.Optimizer,
                  loss_fn: torch.nn.Module,
                  epochs: int,
-                 device: torch.device):
+                 device: torch.device,
+                 tensorboard_log_dir: str = None):
         self.model = model
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
@@ -31,6 +33,7 @@ class TrainTestStep():
         self.loss_fn = loss_fn
         self.epochs = epochs
         self.device = device
+        self.writer = SummaryWriter(log_dir=tensorboard_log_dir)
 
     def train_step(self) -> Tuple[float, float]:
         """Trains a PyTorch model for a single epoch.
@@ -113,5 +116,18 @@ class TrainTestStep():
             results["train_acc"].append(train_acc)
             results["test_loss"].append(test_loss)
             results["test_acc"].append(test_acc)
+
+            self.writer.add_scalars(main_tag='Loss', tag_scalar_dict={'train_loss': train_loss,
+                                                                      'test_loss': test_loss},
+                                    global_step=epoch)
+
+            self.writer.add_scalars(main_tag='Accuracy', tag_scalar_dict={'train_loss': train_acc,
+                                                                          'test_loss': test_acc},
+                                    global_step=epoch)
+
+            self.writer.add_graph(model=self.model, input_to_model=torch.randn(
+                32, 3, 224, 224).to(self.device))
+
+        self.writer.close()
 
         return results
