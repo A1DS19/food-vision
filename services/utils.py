@@ -5,6 +5,9 @@ import requests
 import zipfile
 from pathlib import Path
 import matplotlib.pyplot as plt
+from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
+import os
 
 
 def save_model(model: torch.nn.Module,
@@ -210,3 +213,33 @@ def pred_and_plot_image(
         title = f"Pred: {target_image_pred_label} | Prob: {target_image_pred_probs.max().cpu():.3f}"
     plt.title(title)
     plt.axis(False)
+
+def create_summary_writer(
+experiment_name:str,
+extra:str,
+model_name):
+    """Create tensorboard summary writer instance
+    
+    Keyword arguments:
+    experiment_name -- name of the current experiment
+    extra -- extra naming
+    model_name -- name of the model
+
+    Example:
+    writer = create_summary_writer(
+                experiment_name='data_10_percent',
+                extra='50_epochs',
+                model_name='efficientnet_b0')
+
+    Return: summary writer instance
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d")
+    if extra:
+        log_dir = os.path.join('runs', timestamp, experiment_name, model_name, extra)
+    else:
+        log_dir = os.path.join('runs', timestamp, experiment_name, model_name)
+
+    print(f'[INFO] Created SummaryWriter saving to {log_dir}')
+    writer = SummaryWriter(log_dir=log_dir)
+    return writer
+    
