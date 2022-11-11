@@ -43,9 +43,9 @@ def save_model(model: torch.nn.Module,
 
 
 def download_data(
-        data_url: str = 'https://github.com/mrdbourke/pytorch-deep-learning/raw/main/data/pizza_steak_sushi.zip',
+        data_url: str = None,
         data_folder: str = 'data',
-        image_folder: str = 'pizza_steak_sushi') -> None:
+        image_folder: str = None) -> None:
     """Download dataset in zip format and unzip it.
 
     Keyword arguments:
@@ -54,6 +54,11 @@ def download_data(
     image_folder -- name of folder where to store the images
     Return: None
     """
+
+    if data_url is None:
+        raise Exception('data_url cannot be empty')
+    if image_folder is None:
+        raise Exception('image_folder cannot be empty')
 
     data_path = Path(f'{data_folder}')
     image_path = data_path / image_folder
