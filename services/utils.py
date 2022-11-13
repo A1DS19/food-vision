@@ -204,7 +204,8 @@ def pred_and_plot_image(
     """
 
     raw_image = torchvision.io.read_image(
-        str(image_path)).type(torch.float32)
+        str(image_path))
+    float_image = raw_image.type(torch.float32)
     target_image = raw_image / 255.0
     target_image = transform(target_image)
 
@@ -218,7 +219,7 @@ def pred_and_plot_image(
     target_image_pred_probs = torch.softmax(target_image_pred, dim=1)
     target_image_pred_label = torch.argmax(target_image_pred_probs)
 
-    plt.imshow(raw_image.squeeze().permute(1, 2, 0))
+    plt.imshow(raw_image.permute(1, 2, 0))
     if class_names:
         title = f"Pred: {class_names[target_image_pred_label.cpu()]} | Prob: {target_image_pred_probs.max().cpu():.3f}"
     else:
