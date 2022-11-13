@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 import os
-
+import torchvision
 
 def save_model(model: torch.nn.Module,
                target_dir: str,
