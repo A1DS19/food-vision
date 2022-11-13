@@ -121,8 +121,8 @@ class TrainTestStep():
                 self.writer.add_scalars(main_tag='Loss', tag_scalar_dict={'train_loss': train_loss,
                                                                           'test_loss': test_loss},
                                         global_step=epoch)
-                self.writer.add_scalars(main_tag='Accuracy', tag_scalar_dict={'train_loss': train_acc,
-                                                                              'test_loss': test_acc},
+                self.writer.add_scalars(main_tag='Accuracy', tag_scalar_dict={'train_acc': train_acc,
+                                                                              'test_acc': test_acc},
                                         global_step=epoch)
                 self.writer.add_graph(model=self.model, input_to_model=torch.randn(
                     32, 3, 224, 224).to(self.device))
