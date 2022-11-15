@@ -15,7 +15,10 @@ class TinyVGG(nn.Module):
       output_shape: An integer indicating number of output units.
     """
 
-    def __init__(self, input_shape: int, hidden_units: int, output_shape: int) -> None:
+    def __init__(self,
+    input_shape: int,
+    hidden_units: int,
+    output_shape: int) -> None:
         super().__init__()
         self.conv_block_1 = nn.Sequential(
             nn.Conv2d(in_channels=input_shape,
