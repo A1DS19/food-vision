@@ -131,8 +131,9 @@ class TrainTestStep():
 
         if self.writer:
             self.writer.close()
-        
+
         stop_time = timer()
-        print(f'Model took {stop_time - start_time} seconds to train.')
+        total_time = stop_time - start_time
+        print(f'Model took {total_time:.2f} seconds to train.')
 
         return results
