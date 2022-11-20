@@ -2,6 +2,7 @@
 from typing import Tuple, Dict, List
 from tqdm.auto import tqdm
 import torch
+from timeit import default_timer as timer
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -26,7 +27,7 @@ class TrainTestStep():
                  epochs: int,
                  device: torch.device,
                  summary_writer: SummaryWriter = None):
-        self.model = model
+        self.model = model.to(device=device)
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
         self.optimizer = optimizer
@@ -96,6 +97,7 @@ class TrainTestStep():
             return test_loss, test_acc
 
     def train_model(self):
+        start_time = timer()
         results = {
             "train_loss": [],
             "train_acc": [],
@@ -129,5 +131,8 @@ class TrainTestStep():
 
         if self.writer:
             self.writer.close()
+        
+        stop_time = timer()
+        print(f'Model took {stop_time - start_time} seconds to train.')
 
         return results
