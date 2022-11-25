@@ -279,3 +279,14 @@ def size_of_model_file(file_name: str):
     print(f'File size in megabytes is {file_size:.2f} MB')
 
     return file_size
+
+
+def model_total_params(model: torch.nn.Module) -> int:
+    """Get total parameters of model
+
+    Keyword arguments:
+    model -- Model from where to count the total number of parameters
+
+    Return: Total number of parameters
+    """
+    return sum(torch.numel(param) for param in model.parameters())
