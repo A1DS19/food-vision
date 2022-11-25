@@ -277,3 +277,5 @@ def size_of_model_file(file_name: str):
     file_size = file_stats.st_size / (1024 * 1024)
 
     print(f'File size in megabytes is {file_size:.2f} MB')
+
+    return file_size
