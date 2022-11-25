@@ -14,6 +14,7 @@ import re
 from torchvision.io import read_image
 import torchvision
 
+
 def save_model(model: torch.nn.Module,
                target_dir: str,
                model_name: str):
@@ -227,12 +228,13 @@ def pred_and_plot_image(
     plt.title(title)
     plt.axis(False)
 
+
 def create_summary_writer(
-experiment_name:str,
-extra:str,
-model_name):
+        experiment_name: str,
+        extra: str,
+        model_name):
     """Create tensorboard summary writer instance
-    
+
     Keyword arguments:
     experiment_name -- name of the current experiment
     extra -- extra naming
@@ -248,11 +250,30 @@ model_name):
     """
     timestamp = datetime.now().strftime("%Y-%m-%d")
     if extra:
-        log_dir = os.path.join('runs', timestamp, experiment_name, model_name, extra)
+        log_dir = os.path.join(
+            'runs', timestamp, experiment_name, model_name, extra)
     else:
         log_dir = os.path.join('runs', timestamp, experiment_name, model_name)
 
     print(f'[INFO] Created SummaryWriter saving to {log_dir}')
     writer = SummaryWriter(log_dir=log_dir)
     return writer
-    
+
+
+def size_of_model_file(file_name: str):
+    """Determine the size of a file based on it's path
+
+    Keyword arguments:
+     file_name --- path of file in str format.
+
+    Return: None
+    """
+    file_dir = Path(file_name)
+
+    if file_dir.is_file() == False:
+        raise Exception('File does not exists')
+
+    file_stats = os.stat(file_name)
+    file_size = file_stats.st_size / (1024 * 1024)
+
+    print(f'File size in megabytes is {file_size:.2f} MB')
