@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import requests
 import zipfile
-from pathlib import Path
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
@@ -13,6 +12,9 @@ import random
 import re
 from torchvision.io import read_image
 import torchvision
+from timeit import default_timer as timer
+from tqdm.auto import tqdm
+from typing import List, Dict
 
 
 def save_model(model: torch.nn.Module,
@@ -290,3 +292,76 @@ def model_total_params(model: torch.nn.Module) -> int:
     Return: Total number of parameters
     """
     return sum(torch.numel(param) for param in model.parameters())
+
+
+def pred_and_time(model: nn.Module,
+                  transform: nn.Module,
+                  directory: str,
+                  loss_fn=loss_fn,
+                  class_names: List[str] = class_names,
+                  device: str = 'cuda' if torch.cuda.is_available() else 'cpu',
+                  print_realtime_inference: bool = False) -> List[Dict]:
+    """Predict, time and get helpfull info to list of dictionaries
+       containing data from prediction on images.
+
+    Keyword arguments:
+    model -- model to which make predictions
+    transform -- list of transforms to apply to images
+    directory -- path to where the images are located
+    loss_fn -- loss function instance
+    class_names -- list of classes of images
+    device -- device in which to make predicions (cpu/cuda)
+    print_realtime_inference -- print data of current inference
+
+    Return: List of dictionaries containing info of predictions
+    """
+
+    selected_dir = Path(directory)
+
+    if selected_dir.is_dir() == False:
+        raise Exception('Path is not a directory')
+
+    img_paths = glob.glob(f'{selected_dir}/*/*.jpg')
+    pred_list = []
+
+    model.eval()
+    model = model.to(device)
+
+    for image_path in tqdm(img_paths):
+        image_path = Path(image_path)
+        pred_dict = {}
+        pred_dict['img_path'] = image_path
+        true_class = image_path.parent.stem
+        pred_dict['true_label'] = true_class
+
+        start_inference = timer()
+        image = torchvision.io.read_image(str(image_path))
+        image = image.unsqueeze(dim=0)
+        image = transform(image)
+        image = image.to(device)
+
+        with torch.inference_mode():
+            logits = model(image)
+            preds = torch.softmax(logits, dim=1)
+            label = torch.argmax(preds)
+            predicted_class = class_names[label.cpu()]
+
+            pred_dict['pred_prob'] = round(preds.unsqueeze(0).max().item(), 4)
+            pred_dict['pred_label'] = predicted_class
+            pred_dict['successfull_pred'] = predicted_class == true_class
+
+            stop_inference = timer()
+
+        total_inference = round(stop_inference - start_inference, 4)
+        pred_dict['total_inference_time'] = total_inference
+        pred_list.append(pred_dict)
+
+        if print_realtime_inference:
+            print(f'{image_path} took {total_inference:.3f} seconds | predicted class {predicted_class} | true class {true_class}')
+
+    inference_times = [item['total_inference_time'] for item in pred_list]
+    mean_inference_time = torch.mean(torch.tensor(inference_times)).item()
+
+    print(
+        f'Mean inference time for {len(img_paths)} images on model {model.__class__.__name__} was {mean_inference_time} seconds')
+    return pred_list, mean_inference_time
