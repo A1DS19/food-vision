@@ -297,7 +297,7 @@ def model_total_params(model: torch.nn.Module) -> int:
 def pred_and_time(model: nn.Module,
                   transform: nn.Module,
                   directory: str,
-                  loss_fn=loss_fn,
+                  loss_fn: nn.Module = nn.CrossEntropyLoss(),
                   class_names: List[str] = class_names,
                   device: str = 'cuda' if torch.cuda.is_available() else 'cpu',
                   print_realtime_inference: bool = False) -> List[Dict]:
